@@ -9,330 +9,251 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #0a0a0c;
-    --surface: #111114;
-    --surface2: #17171c;
-    --border: #222228;
-    --border2: #2e2e38;
-    --text: #f0f0f5;
-    --muted: #5a5a6e;
-    --muted2: #3a3a48;
-    --accent: #f0b429;
-    --accent2: #e8830a;
-    --green: #34d399;
-    --red: #f87171;
-    --blue: #60a5fa;
-    --purple: #c084fc;
-    --font-head: 'Syne', sans-serif;
-    --font-mono: 'DM Mono', monospace;
+    --bg:#0a0a0c;--surface:#111114;--surface2:#17171c;
+    --border:#222228;--border2:#2e2e38;--text:#f0f0f5;--muted:#5a5a6e;
+    --accent:#f0b429;--accent2:#e8830a;--green:#34d399;--red:#f87171;
+    --blue:#60a5fa;--purple:#c084fc;
+    --font-head:'Syne',sans-serif;--font-mono:'DM Mono',monospace;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-mono);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-mono);min-height:100vh;overflow-x:hidden;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
 
-  /* ── LOGIN SCREEN ── */
-  #login-screen {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100;
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
-  #login-screen.hidden { opacity: 0; pointer-events: none; transform: scale(1.04); }
+  /* ── LOGIN ── */
+  #login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .6s ease,transform .6s ease;}
+  #login-screen.hidden{opacity:0;pointer-events:none;transform:scale(1.04);}
+  .login-box{width:400px;padding:44px;border:1px solid var(--border2);border-radius:16px;background:var(--surface);animation:fadeUp .5s ease;}
+  .login-logo{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+  .logo-hex{width:34px;height:34px;background:var(--accent);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:13px;color:#000;}
+  .login-title{font-family:var(--font-head);font-size:20px;font-weight:700;}
+  .login-sub{font-size:12px;color:var(--muted);margin-bottom:18px;}
+  .conn-pills{display:flex;gap:7px;margin-bottom:24px;flex-wrap:wrap;}
+  .cpill{font-size:10px;padding:4px 10px;border-radius:20px;border:1px solid;display:flex;align-items:center;gap:5px;}
+  .cpill.g{color:var(--green);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.07);}
+  .cpill.p{color:var(--purple);border-color:rgba(192,132,252,.3);background:rgba(192,132,252,.07);}
+  .cpill .dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;}
+  .login-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;display:block;}
+  .login-input{width:100%;padding:12px 15px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:14px;outline:none;margin-bottom:14px;transition:border-color .2s;}
+  .login-input:focus{border-color:var(--accent);}
+  .login-btn{width:100%;padding:13px;background:var(--accent);border:none;border-radius:8px;color:#000;font-family:var(--font-head);font-size:14px;font-weight:700;cursor:pointer;transition:background .2s,transform .1s;}
+  .login-btn:hover{background:#f5c842;}
+  .login-btn:active{transform:scale(.98);}
+  .login-hint{font-size:11px;color:var(--muted);margin-top:10px;text-align:center;}
+  .login-error{font-size:12px;color:var(--red);margin-bottom:11px;display:none;}
+  .login-divider{border:none;border-top:1px solid var(--border);margin:22px 0;}
+  .src-label{font-size:10px;color:var(--muted);text-align:center;margin-bottom:9px;text-transform:uppercase;letter-spacing:.08em;}
+  .connect-btns{display:flex;gap:8px;}
+  .cbtn{flex:1;padding:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--muted);font-family:var(--font-mono);font-size:11px;cursor:pointer;transition:all .15s;text-align:center;}
+  .cbtn:hover{border-color:var(--accent);color:var(--text);}
+  .cbtn.on{border-color:rgba(52,211,153,.4);color:var(--green);background:rgba(52,211,153,.05);}
+  .src-footer{font-size:10px;color:var(--muted);text-align:center;margin-top:9px;}
 
-  .login-box {
-    width: 380px;
-    padding: 48px;
-    border: 1px solid var(--border2);
-    border-radius: 16px;
-    background: var(--surface);
-    animation: fadeUp 0.5s ease;
-  }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-
-  .login-logo {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 6px;
-  }
-  .logo-hex {
-    width: 36px; height: 36px;
-    background: var(--accent);
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-head); font-weight: 800; font-size: 14px; color: #000;
-  }
-  .login-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
-  .login-sub { font-size: 12px; color: var(--muted); margin-bottom: 32px; }
-  .login-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; display: block; }
-  .login-input {
-    width: 100%; padding: 12px 16px;
-    background: var(--bg); border: 1px solid var(--border2);
-    border-radius: 8px; color: var(--text);
-    font-family: var(--font-mono); font-size: 14px;
-    outline: none; margin-bottom: 16px;
-    transition: border-color 0.2s;
-  }
-  .login-input:focus { border-color: var(--accent); }
-  .login-btn {
-    width: 100%; padding: 13px;
-    background: var(--accent); border: none; border-radius: 8px;
-    color: #000; font-family: var(--font-head); font-size: 14px; font-weight: 700;
-    cursor: pointer; letter-spacing: 0.03em;
-    transition: background 0.2s, transform 0.1s;
-  }
-  .login-btn:hover { background: #f5c842; }
-  .login-btn:active { transform: scale(0.98); }
-  .login-hint { font-size: 11px; color: var(--muted); margin-top: 12px; text-align: center; }
-  .login-error { font-size: 12px; color: var(--red); margin-bottom: 12px; display: none; }
-
-  /* ── MAIN DASHBOARD ── */
-  #dashboard { opacity: 0; transition: opacity 0.5s ease; }
-  #dashboard.visible { opacity: 1; }
+  /* ── DASHBOARD ── */
+  #dashboard{opacity:0;transition:opacity .5s ease;}
+  #dashboard.visible{opacity:1;}
+  .layout{display:flex;min-height:100vh;}
 
   /* Sidebar */
-  .layout { display: flex; min-height: 100vh; }
-  .sidebar {
-    width: 220px; flex-shrink: 0;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 24px 0;
-    display: flex; flex-direction: column;
-    position: sticky; top: 0; height: 100vh;
-  }
-  .sidebar-logo {
-    display: flex; align-items: center; gap: 10px;
-    padding: 0 20px 28px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 16px;
-  }
-  .sidebar-logo .logo-hex { width: 28px; height: 28px; font-size: 11px; }
-  .sidebar-logo span { font-family: var(--font-head); font-weight: 700; font-size: 15px; }
+  .sidebar{width:222px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:22px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .sidebar-logo{display:flex;align-items:center;gap:9px;padding:0 18px 18px;border-bottom:1px solid var(--border);margin-bottom:14px;}
+  .sidebar-logo .logo-hex{width:26px;height:26px;font-size:10px;}
+  .sidebar-logo span{font-family:var(--font-head);font-weight:700;font-size:14px;}
+  .sidebar-conns{padding:0 14px 14px;border-bottom:1px solid var(--border);margin-bottom:10px;}
+  .sc-row{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:11px;color:var(--muted);}
+  .sc-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+  .sc-dot.g{background:var(--green);animation:pulse 2.5s infinite;}
+  .sc-dot.p{background:var(--purple);animation:pulse 2.5s infinite .5s;}
+  .sc-status{margin-left:auto;font-size:10px;}
+  .sc-status.ok{color:var(--green);}
+  .sc-status.ai{color:var(--purple);}
+  .nav-sec{padding:0 10px;margin-bottom:6px;}
+  .nav-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;padding:0 8px;margin-bottom:5px;}
+  .nav-item{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:8px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;margin-bottom:2px;border:1px solid transparent;}
+  .nav-item:hover{color:var(--text);background:var(--surface2);}
+  .nav-item.active{color:var(--accent);background:rgba(240,180,41,.08);border-color:rgba(240,180,41,.15);}
+  .nav-icon{font-size:13px;width:16px;text-align:center;}
+  .sidebar-bottom{margin-top:auto;padding:14px 10px;border-top:1px solid var(--border);}
+  .user-row{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;cursor:pointer;transition:background .15s;}
+  .user-row:hover{background:var(--surface2);}
+  .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000;font-family:var(--font-head);}
+  .user-name{font-size:11px;font-weight:500;}
+  .user-plan{font-size:10px;color:var(--muted);}
+  .logout-btn{font-size:11px;color:var(--muted);padding:4px 9px;cursor:pointer;}
+  .logout-btn:hover{color:var(--red);}
 
-  .nav-section { padding: 0 12px; margin-bottom: 8px; }
-  .nav-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; padding: 0 8px; margin-bottom: 6px; }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 10px; border-radius: 8px;
-    font-size: 13px; color: var(--muted); cursor: pointer;
-    transition: all 0.15s; margin-bottom: 2px;
-    border: 1px solid transparent;
-  }
-  .nav-item:hover { color: var(--text); background: var(--surface2); }
-  .nav-item.active { color: var(--accent); background: rgba(240,180,41,0.08); border-color: rgba(240,180,41,0.15); }
-  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+  /* Main */
+  .main{flex:1;padding:26px 30px;overflow-y:auto;}
 
-  .sidebar-bottom {
-    margin-top: auto; padding: 16px 12px;
-    border-top: 1px solid var(--border);
-  }
-  .user-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 10px; border-radius: 8px;
-    cursor: pointer; transition: background 0.15s;
-  }
-  .user-row:hover { background: var(--surface2); }
-  .avatar {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; color: #000; font-family: var(--font-head);
-  }
-  .user-name { font-size: 12px; font-weight: 500; }
-  .user-plan { font-size: 10px; color: var(--muted); }
-  .logout-btn { font-size: 11px; color: var(--muted); padding: 4px 10px; cursor: pointer; }
-  .logout-btn:hover { color: var(--red); }
+  /* Web app banner */
+  .wb{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding:9px 14px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.14);border-radius:8px;animation:fadeUp .3s ease;}
+  .wb-left{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--green);}
+  .wb-right{display:flex;gap:14px;}
+  .src-tag{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px;}
+  .src-dot{width:5px;height:5px;border-radius:50%;}
 
-  /* Main content */
-  .main { flex: 1; padding: 32px 36px; overflow-y: auto; max-width: 1100px; }
+  /* Header */
+  .page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;animation:fadeUp .3s ease .05s both;}
+  .page-title{font-family:var(--font-head);font-size:24px;font-weight:800;margin-bottom:3px;}
+  .page-sub{font-size:12px;color:var(--muted);}
+  .sync-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:5px;animation:pulse 2s infinite;}
+  .header-actions{display:flex;gap:9px;align-items:center;}
+  .btn{padding:8px 16px;border-radius:8px;font-size:12px;font-family:var(--font-mono);cursor:pointer;transition:all .15s;border:1px solid var(--border2);background:var(--surface2);color:var(--text);}
+  .btn:hover{border-color:var(--muted);}
+  .btn-primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:500;}
+  .btn-primary:hover{background:#f5c842;}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
 
-  /* Page header */
-  .page-header {
-    display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 32px;
-    animation: fadeUp 0.4s ease 0.1s both;
-  }
-  .page-title { font-family: var(--font-head); font-size: 26px; font-weight: 800; margin-bottom: 4px; }
-  .page-sub { font-size: 12px; color: var(--muted); }
-  .sync-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 6px; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  /* Refresh progress */
+  .rp{display:none;margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 16px;animation:fadeUp .3s ease;}
+  .rp.on{display:flex;align-items:center;gap:0;}
+  .step{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);flex:1;transition:color .3s;}
+  .step.active{color:var(--text);}
+  .step.done{color:var(--green);}
+  .step-ic{font-size:13px;width:18px;text-align:center;}
+  .sdiv{width:20px;height:1px;background:var(--border2);margin:0 3px;flex-shrink:0;}
 
-  .header-actions { display: flex; gap: 10px; align-items: center; }
-  .btn {
-    padding: 9px 18px; border-radius: 8px; font-size: 12px; font-family: var(--font-mono);
-    cursor: pointer; transition: all 0.15s; border: 1px solid var(--border2);
-    background: var(--surface2); color: var(--text);
-  }
-  .btn:hover { border-color: var(--muted); }
-  .btn-primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 500; }
-  .btn-primary:hover { background: #f5c842; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  /* Period tabs */
+  .ptabs{display:flex;gap:3px;}
+  .ptab{padding:6px 13px;border-radius:6px;font-size:11px;cursor:pointer;color:var(--muted);transition:all .15s;border:1px solid transparent;}
+  .ptab:hover{color:var(--text);}
+  .ptab.active{color:var(--accent);border-color:rgba(240,180,41,.3);background:rgba(240,180,41,.07);}
 
-  /* Date filter tabs */
-  .period-tabs { display: flex; gap: 4px; margin-bottom: 28px; animation: fadeUp 0.4s ease 0.15s both; }
-  .period-tab {
-    padding: 6px 14px; border-radius: 6px; font-size: 11px;
-    cursor: pointer; color: var(--muted); transition: all 0.15s;
-    border: 1px solid transparent;
-  }
-  .period-tab:hover { color: var(--text); }
-  .period-tab.active { color: var(--accent); border-color: rgba(240,180,41,0.3); background: rgba(240,180,41,0.07); }
-
-  /* Metric grid */
-  .metric-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
-    margin-bottom: 24px;
-    animation: fadeUp 0.4s ease 0.2s both;
-  }
-  .metric-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 18px 20px;
-    position: relative; overflow: hidden;
-    transition: border-color 0.2s, transform 0.2s;
-    cursor: default;
-  }
-  .metric-card:hover { border-color: var(--border2); transform: translateY(-1px); }
-  .metric-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent-line, var(--border)), transparent);
-  }
-  .metric-card.up::before { --accent-line: var(--green); }
-  .metric-card.down::before { --accent-line: var(--red); }
-  .metric-card.info::before { --accent-line: var(--blue); }
-  .metric-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
-  .metric-value { font-family: var(--font-head); font-size: 28px; font-weight: 800; margin-bottom: 6px; }
-  .metric-delta { font-size: 11px; display: flex; align-items: center; gap: 4px; }
-  .delta-up { color: var(--green); }
-  .delta-down { color: var(--red); }
-  .delta-neutral { color: var(--muted); }
+  /* Metrics — 5 cols */
+  .mgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-bottom:18px;animation:fadeUp .35s ease .1s both;}
+  .mcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px 17px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;}
+  .mcard:hover{border-color:var(--border2);transform:translateY(-1px);}
+  .mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--al,var(--border));}
+  .mcard.up::before{--al:var(--green);}
+  .mcard.dn::before{--al:var(--red);}
+  .mcard.inf::before{--al:var(--blue);}
+  .mcard.prf::before{--al:var(--purple);}
+  .ml{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;}
+  .mv{font-family:var(--font-head);font-size:22px;font-weight:800;margin-bottom:4px;transition:opacity .3s,transform .3s;}
+  .md{font-size:11px;}
+  .du{color:var(--green);}
+  .dd{color:var(--red);}
+  .dn2{color:var(--muted);}
 
   /* Charts row */
-  .charts-row { display: grid; grid-template-columns: 1.6fr 1fr; gap: 14px; margin-bottom: 24px; animation: fadeUp 0.4s ease 0.25s both; }
-  .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 20px 22px;
-  }
-  .card-title { font-family: var(--font-head); font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-  .card-sub { font-size: 11px; color: var(--muted); margin-bottom: 18px; }
+  .crow{display:grid;grid-template-columns:1.6fr 1fr;gap:11px;margin-bottom:18px;animation:fadeUp .35s ease .15s both;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:17px 19px;}
+  .ct{font-family:var(--font-head);font-size:13px;font-weight:700;margin-bottom:3px;}
+  .cs{font-size:11px;color:var(--muted);margin-bottom:14px;}
 
-  /* Bottom row */
-  .bottom-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; animation: fadeUp 0.4s ease 0.3s both; }
+  /* Bottom 3 */
+  .brow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;animation:fadeUp .35s ease .2s both;}
 
-  /* Top sellers */
-  .seller-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 0; border-bottom: 1px solid var(--border);
-    transition: background 0.15s; cursor: pointer; border-radius: 4px;
-    padding-left: 4px; padding-right: 4px; margin: 0 -4px;
-  }
-  .seller-row:last-child { border-bottom: none; }
-  .seller-row:hover { background: var(--surface2); }
-  .seller-rank { font-size: 11px; color: var(--muted); width: 16px; text-align: center; flex-shrink: 0; }
-  .seller-rank.gold { color: var(--accent); font-weight: 700; }
-  .seller-info { flex: 1; min-width: 0; }
-  .seller-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
-  .seller-units { font-size: 10px; color: var(--muted); }
-  .seller-rev { font-size: 13px; font-weight: 500; color: var(--accent); flex-shrink: 0; }
+  /* AI panel */
+  .ai-thinking{display:none;padding:10px 12px;border-radius:8px;background:rgba(192,132,252,.05);border:1px solid rgba(192,132,252,.15);margin-bottom:9px;}
+  .ai-thinking.on{display:flex;align-items:center;gap:8px;}
+  .ai-dots{display:flex;gap:3px;}
+  .ai-dot{width:4px;height:4px;border-radius:50%;background:var(--purple);animation:bounce 1.2s infinite;}
+  .ai-dot:nth-child(2){animation-delay:.2s;}
+  .ai-dot:nth-child(3){animation-delay:.4s;}
+  .ai-ttext{font-size:11px;color:var(--purple);}
+  .iitem{display:flex;gap:9px;margin-bottom:9px;padding:10px 11px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);transition:border-color .2s;}
+  .iitem:hover{border-color:var(--border2);}
+  .iitem:last-child{margin-bottom:0;}
+  .idot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+  .itext{font-size:11px;color:var(--muted);line-height:1.6;}
+  .itag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.08em;display:inline-block;margin-bottom:3px;}
 
-  /* AI insights */
-  .insight-item {
-    display: flex; gap: 10px; margin-bottom: 14px;
-    padding: 12px; border-radius: 8px; background: var(--surface2);
-    border: 1px solid var(--border);
-    transition: border-color 0.2s;
-    cursor: default;
-  }
-  .insight-item:hover { border-color: var(--border2); }
-  .insight-item:last-child { margin-bottom: 0; }
-  .insight-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
-  .insight-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
-  .insight-tag {
-    font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 4px;
-    text-transform: uppercase; letter-spacing: 0.08em; display: inline-block; margin-bottom: 4px;
-  }
+  /* Health */
+  .hsec{margin-top:14px;padding-top:13px;border-top:1px solid var(--border);}
+  .hrow{display:flex;justify-content:space-between;margin-bottom:6px;}
+  .hscore{font-family:var(--font-head);font-size:19px;font-weight:800;color:var(--green);}
+  .hbg{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+  .hfill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green),#10b981);transition:width 1s cubic-bezier(.4,0,.2,1);}
 
-  /* Low stock */
-  .stock-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 0; border-bottom: 1px solid var(--border);
-  }
-  .stock-row:last-child { border-bottom: none; }
-  .stock-name { font-size: 12px; margin-bottom: 2px; }
-  .stock-sku { font-size: 10px; color: var(--muted); }
-  .stock-badge {
-    font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
-    flex-shrink: 0;
-  }
-  .badge-red { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.25); }
-  .badge-amber { background: rgba(240,180,41,0.1); color: var(--accent); border: 1px solid rgba(240,180,41,0.2); }
-  .badge-green { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+  /* Stock */
+  .srow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+  .srow:last-child{border-bottom:none;}
+  .sname{font-size:12px;margin-bottom:2px;}
+  .ssku{font-size:10px;color:var(--muted);}
+  .sbadge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;flex-shrink:0;}
+  .br{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.25);}
+  .ba{background:rgba(240,180,41,.1);color:var(--accent);border:1px solid rgba(240,180,41,.2);}
+  .bg2{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2);}
 
-  /* Health score */
-  .health-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
-  .health-label-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
-  .health-score-text { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--green); }
-  .health-bar-bg { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
-  .health-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--green), #10b981); transition: width 1s cubic-bezier(.4,0,.2,1); }
-
-  /* Refresh animation */
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spinning { animation: spin 0.8s linear infinite; display: inline-block; }
-
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 28px; right: 28px;
-    background: var(--surface); border: 1px solid var(--border2);
-    border-radius: 10px; padding: 14px 20px;
-    font-size: 12px; color: var(--text);
-    display: flex; align-items: center; gap: 10px;
-    transform: translateY(80px); opacity: 0;
-    transition: all 0.3s cubic-bezier(.4,0,.2,1);
-    z-index: 999; min-width: 260px;
-  }
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast-icon { font-size: 16px; }
-
-  /* Nav pages */
-  .page-content { display: none; }
-  .page-content.active { display: block; }
+  /* Sellers */
+  .sllrow{display:flex;align-items:center;gap:9px;padding:8px 3px;border-bottom:1px solid var(--border);transition:background .15s;cursor:pointer;border-radius:4px;margin:0 -3px;}
+  .sllrow:last-child{border-bottom:none;}
+  .sllrow:hover{background:var(--surface2);}
+  .slrank{font-size:11px;color:var(--muted);width:14px;text-align:center;flex-shrink:0;}
+  .slrank.g{color:var(--accent);font-weight:700;}
+  .slinfo{flex:1;min-width:0;}
+  .slname{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px;}
+  .slunits{font-size:10px;color:var(--muted);}
+  .slrev{font-size:12px;font-weight:500;color:var(--accent);flex-shrink:0;}
 
   /* Orders table */
-  .orders-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .orders-table th { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 400; }
-  .orders-table td { padding: 12px 12px; border-bottom: 1px solid var(--border); }
-  .orders-table tr:hover td { background: var(--surface2); }
-  .orders-table tr:last-child td { border-bottom: none; }
-  .status-badge { font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; }
+  .otbl{width:100%;border-collapse:collapse;font-size:12px;}
+  .otbl th{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;padding:9px 11px;text-align:left;border-bottom:1px solid var(--border);font-weight:400;}
+  .otbl td{padding:10px 11px;border-bottom:1px solid var(--border);}
+  .otbl tr:hover td{background:var(--surface2);}
+  .otbl tr:last-child td{border-bottom:none;}
+  .stbadge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;}
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  /* Architecture */
+  .arch-flow{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:18px;}
+  .anode{display:flex;flex-direction:column;align-items:center;padding:10px 14px;border-radius:8px;border:1px solid;min-width:96px;text-align:center;transition:transform .2s;}
+  .anode:hover{transform:translateY(-2px);}
+  .anode.src{border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.06);}
+  .anode.src2{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.06);}
+  .anode.be{border-color:rgba(240,180,41,.3);background:rgba(240,180,41,.06);}
+  .anode.ai2{border-color:rgba(192,132,252,.3);background:rgba(192,132,252,.06);}
+  .anode.out{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.06);}
+  .aico{font-size:18px;margin-bottom:4px;}
+  .albl{font-size:11px;font-weight:500;}
+  .asub{font-size:9px;color:var(--muted);margin-top:2px;}
+  .aarr{font-size:14px;color:var(--border2);padding:0 4px;}
+
+  /* Page pages */
+  .pc{display:none;}
+  .pc.active{display:block;}
+
+  /* Toast */
+  .toast{position:fixed;bottom:26px;right:26px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:11px 16px;font-size:12px;color:var(--text);display:flex;align-items:center;gap:9px;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:999;min-width:250px;max-width:320px;}
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast-icon{font-size:14px;flex-shrink:0;}
+  .spinning{animation:spin .7s linear infinite;display:inline-block;}
+  ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- ═══ LOGIN ═══ -->
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
       <div class="logo-hex">E</div>
       <span class="login-title">eBay Dashboard</span>
     </div>
-    <p class="login-sub">Private access</p>
+    <p class="login-sub">Private access · Secure business portal</p>
+    <div class="conn-pills">
+      <div class="cpill g"><div class="dot"></div>eBay Connected</div>
+      <div class="cpill g"><div class="dot"></div>Sheets Synced</div>
+      <div class="cpill p"><div class="dot"></div>AI Ready</div>
+    </div>
     <label class="login-label">Password</label>
-    <p class="login-error" id="login-error">Incorrect password. Try: demo123</p>
+    <p class="login-error" id="login-error">Incorrect password. Hint: demo123</p>
     <input type="password" class="login-input" id="pw-input" placeholder="Enter your password…"/>
     <button class="login-btn" onclick="doLogin()">Sign in →</button>
-    <p class="login-hint">Hint: <code>demo123</code></p>
+    <p class="login-hint">Demo password: <code>demo123</code></p>
+    <hr class="login-divider"/>
+    <p class="src-label">Optional — Connect Data Sources</p>
+    <div class="connect-btns">
+      <div class="cbtn on" id="btn-ebay" onclick="toggleConn('ebay')">✔ eBay API</div>
+      <div class="cbtn on" id="btn-sheets" onclick="toggleConn('sheets')">✔ Google Sheets</div>
+    </div>
+    <p class="src-footer">eBay API · Google Sheets · AI Analysis</p>
   </div>
 </div>
 
-<!-- DASHBOARD -->
+<!-- ═══ DASHBOARD ═══ -->
 <div id="dashboard">
   <div class="layout">
 
@@ -342,245 +263,280 @@
         <div class="logo-hex">E</div>
         <span>eBay Dash</span>
       </div>
-      <div class="nav-section">
-        <div class="nav-label">Overview</div>
-        <div class="nav-item active" onclick="showPage('overview', this)">
-          <span class="nav-icon">▦</span> Dashboard
-        </div>
-        <div class="nav-item" onclick="showPage('orders', this)">
-          <span class="nav-icon">◈</span> Orders
-        </div>
-        <div class="nav-item" onclick="showPage('inventory', this)">
-          <span class="nav-icon">◉</span> Inventory
-        </div>
+      <div class="sidebar-conns">
+        <div class="sc-row"><div class="sc-dot g"></div><span>eBay API</span><span class="sc-status ok">Live</span></div>
+        <div class="sc-row"><div class="sc-dot g"></div><span>Google Sheets</span><span class="sc-status ok">Synced</span></div>
+        <div class="sc-row"><div class="sc-dot p"></div><span>AI Analysis</span><span class="sc-status ai">Ready</span></div>
       </div>
-      <div class="nav-section" style="margin-top:8px">
-        <div class="nav-label">Analytics</div>
-        <div class="nav-item" onclick="showPage('insights', this)">
-          <span class="nav-icon">◆</span> AI Insights
-        </div>
-        <div class="nav-item" onclick="showPage('fees', this)">
-          <span class="nav-icon">◎</span> Fees & Costs
-        </div>
+      <div class="nav-sec">
+        <div class="nav-lbl">Overview</div>
+        <div class="nav-item active" onclick="showPage('overview',this)"><span class="nav-icon">▦</span>Dashboard</div>
+        <div class="nav-item" onclick="showPage('orders',this)"><span class="nav-icon">◈</span>Orders</div>
+        <div class="nav-item" onclick="showPage('inventory',this)"><span class="nav-icon">◉</span>Inventory</div>
+      </div>
+      <div class="nav-sec" style="margin-top:8px">
+        <div class="nav-lbl">Analytics</div>
+        <div class="nav-item" onclick="showPage('insights',this)"><span class="nav-icon">◆</span>AI Insights</div>
+        <div class="nav-item" onclick="showPage('fees',this)"><span class="nav-icon">◎</span>Fees &amp; Costs</div>
+        <div class="nav-item" onclick="showPage('arch',this)"><span class="nav-icon">⬡</span>How It Works</div>
       </div>
       <div class="sidebar-bottom">
         <div class="user-row">
           <div class="avatar">JD</div>
-          <div>
-            <div class="user-name">John's Store</div>
-            <div class="user-plan">eBay Pro Seller</div>
-          </div>
+          <div><div class="user-name">John's Store</div><div class="user-plan">eBay Pro Seller</div></div>
         </div>
-        <div style="margin-top:8px">
-          <span class="logout-btn" onclick="doLogout()">← Sign out</span>
-        </div>
+        <div style="margin-top:7px"><span class="logout-btn" onclick="doLogout()">← Sign out</span></div>
       </div>
     </aside>
 
     <!-- MAIN -->
     <main class="main">
 
-      <!-- ═══ OVERVIEW PAGE ═══ -->
-      <div class="page-content active" id="page-overview">
+      <!-- ══ OVERVIEW ══ -->
+      <div class="pc active" id="page-overview">
+        <div class="wb">
+          <div class="wb-left">🌐 <span>Web App — access from any browser, anywhere</span></div>
+          <div class="wb-right">
+            <div class="src-tag"><div class="src-dot" style="background:var(--blue)"></div>eBay API</div>
+            <div class="src-tag"><div class="src-dot" style="background:var(--green)"></div>Google Sheets</div>
+            <div class="src-tag"><div class="src-dot" style="background:var(--purple)"></div>AI Analysis</div>
+          </div>
+        </div>
+
         <div class="page-header">
           <div>
             <h1 class="page-title">Overview</h1>
-            <p class="page-sub"><span class="sync-dot"></span>Live · Last synced today at 09:41 AM</p>
+            <p class="page-sub" id="sync-status"><span class="sync-dot"></span>Live · Last synced today at 09:41 AM</p>
           </div>
           <div class="header-actions">
-            <div class="period-tabs" style="margin:0">
-              <div class="period-tab active" onclick="setPeriod('7d',this)">7D</div>
-              <div class="period-tab" onclick="setPeriod('30d',this)">30D</div>
-              <div class="period-tab" onclick="setPeriod('90d',this)">90D</div>
+            <div class="ptabs">
+              <div class="ptab active" onclick="setPeriod('7d',this)">7D</div>
+              <div class="ptab" onclick="setPeriod('30d',this)">30D</div>
+              <div class="ptab" onclick="setPeriod('90d',this)">90D</div>
             </div>
             <button class="btn btn-primary" id="refresh-btn" onclick="doRefresh()">↻ Refresh</button>
           </div>
         </div>
 
-        <!-- Metrics -->
-        <div class="metric-grid">
-          <div class="metric-card up">
-            <div class="metric-label">Monthly Revenue</div>
-            <div class="metric-value" id="m-revenue">£4,820</div>
-            <div class="metric-delta delta-up">↑ 12.4% vs last month</div>
+        <!-- Step progress bar -->
+        <div class="rp" id="rp">
+          <div class="step" id="st-ebay"><span class="step-ic">○</span><span>eBay API</span></div>
+          <div class="sdiv"></div>
+          <div class="step" id="st-sheets"><span class="step-ic">○</span><span>Sheets</span></div>
+          <div class="sdiv"></div>
+          <div class="step" id="st-ai"><span class="step-ic">○</span><span>AI Analysis</span></div>
+          <div class="sdiv"></div>
+          <div class="step" id="st-done"><span class="step-ic">○</span><span>Done</span></div>
+        </div>
+
+        <!-- 5 metric cards -->
+        <div class="mgrid">
+          <div class="mcard up">
+            <div class="ml">Monthly Revenue</div>
+            <div class="mv" id="m-rev">£4,820</div>
+            <div class="md du">↑ 12.4% vs last month</div>
           </div>
-          <div class="metric-card down">
-            <div class="metric-label">Profit Margin</div>
-            <div class="metric-value" id="m-margin">34.2%</div>
-            <div class="metric-delta delta-down">↓ 2.1% vs last month</div>
+          <div class="mcard prf">
+            <div class="ml">Net Profit</div>
+            <div class="mv" id="m-profit" style="color:var(--purple)">£1,650</div>
+            <div class="md du">↑ 9.2% vs last month</div>
           </div>
-          <div class="metric-card up">
-            <div class="metric-label">Orders</div>
-            <div class="metric-value" id="m-orders">183</div>
-            <div class="metric-delta delta-up">↑ 8 orders vs last month</div>
+          <div class="mcard dn">
+            <div class="ml">Profit Margin</div>
+            <div class="mv" id="m-margin">34.2%</div>
+            <div class="md dd">↓ 2.1% vs last month</div>
           </div>
-          <div class="metric-card info">
-            <div class="metric-label">eBay Fees</div>
-            <div class="metric-value" id="m-fees">£612</div>
-            <div class="metric-delta delta-neutral">12.7% of revenue</div>
+          <div class="mcard up">
+            <div class="ml">Orders</div>
+            <div class="mv" id="m-orders">183</div>
+            <div class="md du">↑ 8 orders this month</div>
+          </div>
+          <div class="mcard inf">
+            <div class="ml">eBay Fees</div>
+            <div class="mv" id="m-fees">£612</div>
+            <div class="md dn2">12.7% of revenue</div>
           </div>
         </div>
 
-        <!-- Charts row -->
-        <div class="charts-row">
+        <!-- Charts -->
+        <div class="crow">
           <div class="card">
-            <div class="card-title">Revenue & Profit</div>
-            <div class="card-sub">Last 6 months · bars = revenue, line = profit</div>
-            <canvas id="revenue-chart" height="130"></canvas>
+            <div class="ct">Revenue · Net Profit · Fees</div>
+            <div class="cs">6 months · bars = revenue · purple = net profit · dashed red = fees</div>
+            <canvas id="rev-chart" height="130"></canvas>
           </div>
           <div class="card">
-            <div class="card-title">Revenue by Category</div>
-            <div class="card-sub">This month's breakdown</div>
-            <canvas id="donut-chart" height="160"></canvas>
+            <div class="ct">Revenue by Category</div>
+            <div class="cs">This month's breakdown</div>
+            <canvas id="donut-chart" height="155"></canvas>
           </div>
         </div>
 
         <!-- Bottom row -->
-        <div class="bottom-row">
-          <!-- Top sellers -->
+        <div class="brow">
           <div class="card">
-            <div class="card-title">Top Sellers</div>
-            <div class="card-sub">By revenue this month</div>
+            <div class="ct">Top Sellers</div>
+            <div class="cs">By revenue · this month</div>
             <div id="sellers-list"></div>
           </div>
-
-          <!-- AI Insights -->
           <div class="card">
-            <div class="card-title" style="color:var(--purple)">◆ Claude AI Insights</div>
-            <div class="card-sub">Analysed just now</div>
+            <div class="ct" style="color:var(--purple)">◆ AI Insights</div>
+            <div class="cs" id="ai-status">Analysed just now · 4 key findings</div>
+            <div class="ai-thinking" id="ai-thinking">
+              <div class="ai-dots"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>
+              <span class="ai-ttext">AI is analysing your sales data…</span>
+            </div>
             <div id="insights-list"></div>
-            <div class="health-section">
-              <div class="health-label-row">
-                <span style="font-size:11px;color:var(--muted)">Business Health</span>
-                <span class="health-score-text">82/100</span>
-              </div>
-              <div class="health-bar-bg">
-                <div class="health-bar-fill" id="health-bar" style="width:0%"></div>
-              </div>
-              <div style="font-size:10px;color:var(--green);margin-top:6px">● Good — growing steadily</div>
+            <div class="hsec">
+              <div class="hrow"><span style="font-size:11px;color:var(--muted)">Business Health</span><span class="hscore">82/100</span></div>
+              <div class="hbg"><div class="hfill" id="health-bar" style="width:0%"></div></div>
+              <div style="font-size:10px;color:var(--green);margin-top:5px">● Good — growing steadily</div>
             </div>
           </div>
-
-          <!-- Low stock -->
           <div class="card">
-            <div class="card-title">⚠ Low Stock Alerts</div>
-            <div class="card-sub">Items needing reorder</div>
+            <div class="ct">⚠ Low Stock</div>
+            <div class="cs">Items needing reorder</div>
             <div id="stock-list"></div>
           </div>
         </div>
       </div>
 
-      <!-- ═══ ORDERS PAGE ═══ -->
-      <div class="page-content" id="page-orders">
+      <!-- ══ ORDERS ══ -->
+      <div class="pc" id="page-orders">
         <div class="page-header">
-          <div>
-            <h1 class="page-title">Orders</h1>
-            <p class="page-sub">183 orders this month</p>
-          </div>
-          <div class="header-actions">
-            <input style="padding:8px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:12px;outline:none;width:220px" placeholder="Search orders…" oninput="filterOrders(this.value)"/>
-          </div>
+          <div><h1 class="page-title">Orders</h1><p class="page-sub">183 orders this month · eBay API</p></div>
+          <input style="padding:8px 13px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:12px;outline:none;width:210px" placeholder="Search orders…" oninput="filterOrders(this.value)"/>
         </div>
-        <div class="card">
-          <table class="orders-table" id="orders-table">
-            <thead>
-              <tr>
-                <th>Order ID</th><th>Item</th><th>Customer</th>
-                <th>Date</th><th>Amount</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="orders-body"></tbody>
-          </table>
-        </div>
+        <div class="card"><table class="otbl"><thead><tr><th>Order ID</th><th>Item</th><th>Customer</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody id="orders-body"></tbody></table></div>
       </div>
 
-      <!-- ═══ INVENTORY PAGE ═══ -->
-      <div class="page-content" id="page-inventory">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Inventory</h1>
-            <p class="page-sub">24 active listings · £6,840 total value</p>
-          </div>
+      <!-- ══ INVENTORY ══ -->
+      <div class="pc" id="page-inventory">
+        <div class="page-header"><div><h1 class="page-title">Inventory</h1><p class="page-sub">24 listings · synced from Google Sheets</p></div></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:14px">
+          <div class="mcard inf"><div class="ml">Total Listings</div><div class="mv">24</div><div class="md dn2">Active SKUs</div></div>
+          <div class="mcard up"><div class="ml">Inventory Value</div><div class="mv">£6,840</div><div class="md du">At cost price</div></div>
+          <div class="mcard dn"><div class="ml">Low Stock Items</div><div class="mv">4</div><div class="md dd">Need reorder</div></div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
-          <div class="metric-card info">
-            <div class="metric-label">Total Listings</div>
-            <div class="metric-value">24</div>
-            <div class="metric-delta delta-neutral">4 low stock</div>
-          </div>
-          <div class="metric-card up">
-            <div class="metric-label">Inventory Value</div>
-            <div class="metric-value">£6,840</div>
-            <div class="metric-delta delta-up">At cost price</div>
-          </div>
-          <div class="metric-card down">
-            <div class="metric-label">Low Stock</div>
-            <div class="metric-value">4</div>
-            <div class="metric-delta delta-down">Need reorder soon</div>
-          </div>
-        </div>
-        <div class="card" style="margin-top:14px">
-          <table class="orders-table">
-            <thead><tr><th>SKU</th><th>Product</th><th>Stock</th><th>Cost</th><th>Value</th><th>Status</th></tr></thead>
-            <tbody id="inventory-body"></tbody>
-          </table>
-        </div>
+        <div class="card"><table class="otbl"><thead><tr><th>SKU</th><th>Product</th><th>Stock</th><th>Cost</th><th>Value</th><th>Status</th></tr></thead><tbody id="inv-body"></tbody></table></div>
       </div>
 
-      <!-- ═══ AI INSIGHTS PAGE ═══ -->
-      <div class="page-content" id="page-insights">
+      <!-- ══ AI INSIGHTS ══ -->
+      <div class="pc" id="page-insights">
         <div class="page-header">
-          <div><h1 class="page-title">AI Insights</h1>
-          <p class="page-sub">Updated on refresh</p></div>
+          <div><h1 class="page-title">AI Insights</h1><p class="page-sub">Deep analysis of eBay + Sheets data</p></div>
           <button class="btn btn-primary" onclick="doRefresh()">↻ Re-analyse</button>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <div class="card" id="insights-full">
-            <div class="card-title" style="color:var(--purple);margin-bottom:16px">◆ Analysis</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+          <div class="card">
+            <div class="ct" style="color:var(--purple);margin-bottom:14px">◆ Full Analysis</div>
+            <div id="insights-full"></div>
           </div>
           <div class="card">
-            <div class="card-title" style="margin-bottom:16px">Business Health Score</div>
-            <div style="text-align:center;padding:20px 0">
-              <div style="font-family:var(--font-head);font-size:64px;font-weight:800;color:var(--green)">82</div>
-              <div style="font-size:13px;color:var(--muted);margin-bottom:20px">out of 100 · Good</div>
-              <div class="health-bar-bg" style="max-width:280px;margin:0 auto">
-                <div class="health-bar-fill" style="width:82%"></div>
-              </div>
+            <div class="ct" style="margin-bottom:14px">Business Health Score</div>
+            <div style="text-align:center;padding:14px 0">
+              <div style="font-family:var(--font-head);font-size:58px;font-weight:800;color:var(--green)">82</div>
+              <div style="font-size:13px;color:var(--muted);margin-bottom:16px">out of 100 · Good</div>
+              <div class="hbg" style="max-width:240px;margin:0 auto"><div class="hfill" style="width:82%"></div></div>
             </div>
-            <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-                <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--green)">A</div><div style="font-size:10px;color:var(--muted)">Sales trend</div></div>
-                <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--accent)">B+</div><div style="font-size:10px;color:var(--muted)">Margin health</div></div>
-                <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--red)">C</div><div style="font-size:10px;color:var(--muted)">Stock levels</div></div>
-                <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--green)">A-</div><div style="font-size:10px;color:var(--muted)">Order volume</div></div>
+            <div style="border-top:1px solid var(--border);padding-top:13px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--green)">A</div><div style="font-size:10px;color:var(--muted)">Sales trend</div></div>
+                <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--accent)">B+</div><div style="font-size:10px;color:var(--muted)">Margin health</div></div>
+                <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--red)">C</div><div style="font-size:10px;color:var(--muted)">Stock levels</div></div>
+                <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--green)">A-</div><div style="font-size:10px;color:var(--muted)">Order volume</div></div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ═══ FEES PAGE ═══ -->
-      <div class="page-content" id="page-fees">
-        <div class="page-header">
-          <div><h1 class="page-title">Fees & Costs</h1>
-          <p class="page-sub">eBay fees, COGS, and expense breakdown</p></div>
+      <!-- ══ FEES ══ -->
+      <div class="pc" id="page-fees">
+        <div class="page-header"><div><h1 class="page-title">Fees &amp; Costs</h1><p class="page-sub">eBay fees, COGS, and expense breakdown</p></div></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px">
+          <div class="mcard dn"><div class="ml">Final Value Fees</div><div class="mv">£382</div><div class="md dd">↑ 22% this month</div></div>
+          <div class="mcard inf"><div class="ml">Listing Fees</div><div class="mv">£48</div><div class="md dn2">Stable</div></div>
+          <div class="mcard inf"><div class="ml">Shipping Costs</div><div class="mv">£182</div><div class="md dn2">3.8% of revenue</div></div>
+          <div class="mcard up"><div class="ml">Net After Fees</div><div class="mv">£4,208</div><div class="md du">87.3% retained</div></div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
-          <div class="metric-card down"><div class="metric-label">Final Value Fees</div><div class="metric-value">£382</div><div class="metric-delta delta-down">↑ 22% vs last month</div></div>
-          <div class="metric-card info"><div class="metric-label">Listing Fees</div><div class="metric-value">£48</div><div class="metric-delta delta-neutral">Stable</div></div>
-          <div class="metric-card info"><div class="metric-label">Shipping Costs</div><div class="metric-value">£182</div><div class="metric-delta delta-neutral">3.8% of revenue</div></div>
-          <div class="metric-card up"><div class="metric-label">Net After Fees</div><div class="metric-value">£4,208</div><div class="metric-delta delta-up">87.3% retained</div></div>
+        <div class="crow">
+          <div class="card"><div class="ct">Fee Trend</div><div class="cs">Monthly eBay fees over 6 months</div><canvas id="fees-chart" height="130"></canvas></div>
+          <div class="card"><div class="ct">Cost Breakdown</div><div class="cs">Where your money goes</div><canvas id="costs-chart" height="155"></canvas></div>
         </div>
-        <div class="charts-row">
+      </div>
+
+      <!-- ══ HOW IT WORKS ══ -->
+      <div class="pc" id="page-arch">
+        <div class="page-header"><div><h1 class="page-title">How It Works</h1><p class="page-sub">System architecture · data flow from sources to dashboard</p></div></div>
+
+        <!-- Flow diagram -->
+        <div class="card" style="margin-bottom:12px">
+          <div class="ct" style="margin-bottom:4px">Data Pipeline</div>
+          <div class="cs">Your data flows from two sources → merged by backend → analysed by AI → displayed here</div>
+          <div class="arch-flow">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="anode src"><div class="aico">🛒</div><div class="albl">eBay API</div><div class="asub">Orders · Inventory · Fees</div></div>
+              <div class="anode src2"><div class="aico">📊</div><div class="albl">Google Sheets</div><div class="asub">Revenue · Expenses · Stock</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:22px;padding:0 2px">
+              <div class="aarr">→</div>
+              <div class="aarr">→</div>
+            </div>
+            <div class="anode be" style="align-self:center"><div class="aico">⚙️</div><div class="albl">Node.js Backend</div><div class="asub">Fetch · Merge · Cache</div></div>
+            <div class="aarr" style="align-self:center">→</div>
+            <div class="anode ai2" style="align-self:center"><div class="aico">🤖</div><div class="albl">AI Analysis</div><div class="asub">Insights · Alerts · Score</div></div>
+            <div class="aarr" style="align-self:center">→</div>
+            <div class="anode out" style="align-self:center"><div class="aico">📱</div><div class="albl">Your Dashboard</div><div class="asub">Any browser · Any device</div></div>
+          </div>
+
+          <!-- Simple text flow underneath -->
+          <div style="margin-top:16px;padding:12px 14px;background:var(--surface2);border-radius:8px;font-size:11px;color:var(--muted);line-height:2.2;border:1px solid var(--border)">
+            <span style="color:var(--blue)">eBay API</span> → Backend → AI → <span style="color:var(--green)">Dashboard</span><br/>
+            <span style="color:var(--green)">Google Sheets</span> → Backend → AI → <span style="color:var(--green)">Dashboard</span>
+          </div>
+        </div>
+
+        <!-- Step cards -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:12px">
           <div class="card">
-            <div class="card-title">Fee Trend</div>
-            <div class="card-sub">Monthly eBay fees over time</div>
-            <canvas id="fees-chart" height="130"></canvas>
+            <div style="font-size:20px;margin-bottom:7px">🛒</div>
+            <div class="ct" style="color:var(--blue);margin-bottom:5px">Step 1 — eBay API</div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.7">Connects via OAuth 2.0. Pulls live orders, active listings, and fee transactions from the last 90 days automatically.</div>
           </div>
           <div class="card">
-            <div class="card-title">Cost Breakdown</div>
-            <div class="card-sub">Where your money goes</div>
-            <canvas id="costs-chart" height="160"></canvas>
+            <div style="font-size:20px;margin-bottom:7px">📊</div>
+            <div class="ct" style="color:var(--green);margin-bottom:5px">Step 2 — Google Sheets</div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.7">Reads your spreadsheet via service account. Pulls revenue, expenses, inventory costs, and orders you track manually.</div>
+          </div>
+          <div class="card">
+            <div style="font-size:20px;margin-bottom:7px">🤖</div>
+            <div class="ct" style="color:var(--purple);margin-bottom:5px">Step 3 — AI Analysis</div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.7">Both datasets are merged and sent for analysis. Returns plain-English insights, net profit calculation, alerts, and a health score.</div>
+          </div>
+          <div class="card">
+            <div style="font-size:20px;margin-bottom:7px">📱</div>
+            <div class="ct" style="color:var(--green);margin-bottom:5px">Step 4 — Dashboard</div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.7">Results cached and displayed here. Auto-refreshes daily at 7 AM. One-click manual refresh. Accessible from any browser.</div>
+          </div>
+        </div>
+
+        <!-- Tech stack -->
+        <div class="card">
+          <div class="ct" style="margin-bottom:13px">Tech Stack</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Backend</div>
+              <div style="font-size:11px;color:var(--text);line-height:2.1">Node.js + Express<br/>eBay Sell API (OAuth 2.0)<br/>Google Sheets API<br/>node-cron (7 AM daily)<br/>In-memory cache (1hr)</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Frontend</div>
+              <div style="font-size:11px;color:var(--text);line-height:2.1">React + Recharts<br/>JWT authentication<br/>Password protected<br/>Responsive layout<br/>Real-time sync updates</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Hosting</div>
+              <div style="font-size:11px;color:var(--text);line-height:2.1">Railway (backend)<br/>Netlify (frontend)<br/>HTTPS by default<br/>Always-on 24/7<br/>~£5/month total</div>
+            </div>
           </div>
         </div>
       </div>
@@ -589,312 +545,253 @@
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast">
-  <span class="toast-icon" id="toast-icon">✓</span>
-  <span id="toast-msg">Data refreshed successfully</span>
-</div>
+<!-- Toast -->
+<div class="toast" id="toast"><span class="toast-icon" id="toast-icon">✓</span><span id="toast-msg">Done</span></div>
 
 <script>
-// ── DATA ──────────────────────────────────────────────────────────────────────
-
-const SELLERS = [
-  { name: "Vintage Camera Lens 50mm f/1.8", units: 28, rev: 840 },
-  { name: "Mechanical Keyboard TKL Brown", units: 21, rev: 630 },
-  { name: "Leather RFID Wallet Slim", units: 44, rev: 528 },
-  { name: "USB-C Hub 7-in-1 Aluminium", units: 19, rev: 380 },
-  { name: "Noise-Cancelling Earbuds Pro", units: 12, rev: 312 },
-  { name: "Bamboo Desk Organiser Set", units: 31, rev: 248 },
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const SELLERS=[
+  {name:"Vintage Camera Lens 50mm f/1.8",units:28,rev:840},
+  {name:"Mechanical Keyboard TKL Brown",units:21,rev:630},
+  {name:"Leather RFID Wallet Slim",units:44,rev:528},
+  {name:"USB-C Hub 7-in-1 Aluminium",units:19,rev:380},
+  {name:"Noise-Cancelling Earbuds Pro",units:12,rev:312},
+  {name:"Bamboo Desk Organiser Set",units:31,rev:248},
 ];
-
-const INSIGHTS = [
-  { type: "alert", color: "#f87171", text: "Profit margin dipped 2.1% — final value fees on electronics rose 22% this month." },
-  { type: "opportunity", color: "#34d399", text: "Top 3 listings drive 61% of revenue. Expand this category with 2–3 similar SKUs." },
-  { type: "insight", color: "#60a5fa", text: "Weekend orders convert 18% higher. Consider scheduling promotions for Fri–Sun." },
-  { type: "alert", color: "#f0b429", text: "Vintage Camera Lens has 2 units left — sells ~4/week. Reorder immediately." },
+const INSIGHTS=[
+  {type:"alert",color:"#f87171",text:"Profit margin dipped 2.1% — final value fees on electronics rose 22% this month."},
+  {type:"opportunity",color:"#34d399",text:"Top 3 listings drive 61% of revenue. Expand this category with 2–3 similar SKUs."},
+  {type:"insight",color:"#60a5fa",text:"Weekend orders convert 18% higher. Schedule promotions for Fri–Sun for best results."},
+  {type:"alert",color:"#f0b429",text:"Vintage Camera Lens has 2 units left — sells ~4/week. Reorder immediately."},
 ];
-
-const STOCK = [
-  { name: "Vintage Camera Lens 50mm", sku: "CAM-50-F18", qty: 2, status: "red" },
-  { name: "Mechanical Keyboard TKL", sku: "KBD-TKL-BRN", qty: 1, status: "red" },
-  { name: "USB-C Hub 7-in-1", sku: "HUB-7C-ALU", qty: 4, status: "amber" },
-  { name: "Cable Management Kit", sku: "CABLE-KIT-BLK", qty: 3, status: "amber" },
+const STOCK=[
+  {name:"Vintage Camera Lens 50mm",sku:"CAM-50-F18",qty:2,s:"r"},
+  {name:"Mechanical Keyboard TKL",sku:"KBD-TKL-BRN",qty:1,s:"r"},
+  {name:"USB-C Hub 7-in-1",sku:"HUB-7C-ALU",qty:4,s:"a"},
+  {name:"Cable Management Kit",sku:"CABLE-KIT-BLK",qty:3,s:"a"},
 ];
-
-const ORDERS = [
-  { id: "#EB-84921", item: "Vintage Camera Lens 50mm", customer: "M. Robertson", date: "26 Mar", amount: "£32.99", status: "shipped" },
-  { id: "#EB-84920", item: "Leather RFID Wallet", customer: "T. Patel", date: "26 Mar", amount: "£12.50", status: "processing" },
-  { id: "#EB-84918", item: "USB-C Hub 7-in-1", customer: "S. Williams", date: "25 Mar", amount: "£24.99", status: "delivered" },
-  { id: "#EB-84915", item: "Mechanical Keyboard TKL", customer: "A. Chen", date: "25 Mar", amount: "£89.00", status: "shipped" },
-  { id: "#EB-84910", item: "Noise-Cancelling Earbuds", customer: "L. Johnson", date: "24 Mar", amount: "£54.99", status: "delivered" },
-  { id: "#EB-84908", item: "Bamboo Desk Organiser", customer: "R. Garcia", date: "24 Mar", amount: "£18.99", status: "delivered" },
-  { id: "#EB-84905", item: "Vintage Camera Lens 50mm", customer: "D. Smith", date: "23 Mar", amount: "£32.99", status: "delivered" },
-  { id: "#EB-84901", item: "USB-C Hub 7-in-1", customer: "F. Brown", date: "23 Mar", amount: "£24.99", status: "shipped" },
-  { id: "#EB-84897", item: "Leather RFID Wallet", customer: "H. Wilson", date: "22 Mar", amount: "£12.50", status: "delivered" },
-  { id: "#EB-84890", item: "Mechanical Keyboard TKL", customer: "C. Taylor", date: "22 Mar", amount: "£89.00", status: "processing" },
+const ORDERS=[
+  {id:"#EB-84921",item:"Vintage Camera Lens 50mm",cust:"M. Robertson",date:"26 Mar",amt:"£32.99",st:"shipped"},
+  {id:"#EB-84920",item:"Leather RFID Wallet",cust:"T. Patel",date:"26 Mar",amt:"£12.50",st:"processing"},
+  {id:"#EB-84918",item:"USB-C Hub 7-in-1",cust:"S. Williams",date:"25 Mar",amt:"£24.99",st:"delivered"},
+  {id:"#EB-84915",item:"Mechanical Keyboard TKL",cust:"A. Chen",date:"25 Mar",amt:"£89.00",st:"shipped"},
+  {id:"#EB-84910",item:"Noise-Cancelling Earbuds",cust:"L. Johnson",date:"24 Mar",amt:"£54.99",st:"delivered"},
+  {id:"#EB-84908",item:"Bamboo Desk Organiser",cust:"R. Garcia",date:"24 Mar",amt:"£18.99",st:"delivered"},
+  {id:"#EB-84905",item:"Vintage Camera Lens 50mm",cust:"D. Smith",date:"23 Mar",amt:"£32.99",st:"delivered"},
+  {id:"#EB-84901",item:"USB-C Hub 7-in-1",cust:"F. Brown",date:"23 Mar",amt:"£24.99",st:"shipped"},
+  {id:"#EB-84897",item:"Leather RFID Wallet",cust:"H. Wilson",date:"22 Mar",amt:"£12.50",st:"delivered"},
+  {id:"#EB-84890",item:"Mechanical Keyboard TKL",cust:"C. Taylor",date:"22 Mar",amt:"£89.00",st:"processing"},
 ];
-
-const INVENTORY_DATA = [
-  { sku: "CAM-50-F18", name: "Vintage Camera Lens 50mm f/1.8", qty: 2, cost: 18, value: 36 },
-  { sku: "KBD-TKL-BRN", name: "Mechanical Keyboard TKL Brown Switch", qty: 1, cost: 42, value: 42 },
-  { sku: "HUB-7C-ALU", name: "USB-C Hub 7-in-1 Aluminium", qty: 4, cost: 12, value: 48 },
-  { sku: "LTH-RFID-SLM", name: "Leather RFID Wallet Slim", qty: 18, cost: 5, value: 90 },
-  { sku: "EAR-NC-PRO", name: "Noise-Cancelling Earbuds Pro", qty: 9, cost: 28, value: 252 },
-  { sku: "DESK-ORG-BAM", name: "Bamboo Desk Organiser Set", qty: 22, cost: 8, value: 176 },
-  { sku: "CABLE-KIT-BLK", name: "Cable Management Kit Black", qty: 3, cost: 4, value: 12 },
-  { sku: "STAND-LAP-ALU", name: "Laptop Stand Aluminium Foldable", qty: 11, cost: 16, value: 176 },
+const INV=[
+  {sku:"CAM-50-F18",name:"Vintage Camera Lens 50mm f/1.8",qty:2,cost:18,val:36},
+  {sku:"KBD-TKL-BRN",name:"Mechanical Keyboard TKL Brown Switch",qty:1,cost:42,val:42},
+  {sku:"HUB-7C-ALU",name:"USB-C Hub 7-in-1 Aluminium",qty:4,cost:12,val:48},
+  {sku:"LTH-RFID-SLM",name:"Leather RFID Wallet Slim",qty:18,cost:5,val:90},
+  {sku:"EAR-NC-PRO",name:"Noise-Cancelling Earbuds Pro",qty:9,cost:28,val:252},
+  {sku:"DESK-ORG-BAM",name:"Bamboo Desk Organiser Set",qty:22,cost:8,val:176},
+  {sku:"CABLE-KIT-BLK",name:"Cable Management Kit Black",qty:3,cost:4,val:12},
+  {sku:"STAND-LAP-ALU",name:"Laptop Stand Aluminium Foldable",qty:11,cost:16,val:176},
 ];
-
-// ── PERIOD DATA ───────────────────────────────────────────────────────────────
-const PERIOD_DATA = {
-  '7d':  { rev: '£1,240', margin: '36.1%', orders: '47', fees: '£158', trend: [180,210,190,240,200,220,200] },
-  '30d': { rev: '£4,820', margin: '34.2%', orders: '183', fees: '£612', trend: [3100,3450,5200,3800,4300,4820] },
-  '90d': { rev: '£13,570', margin: '33.8%', orders: '512', fees: '£1,720', trend: [3100,3450,5200,3800,4300,4820] },
+const PD={
+  '7d': {rev:'£1,240',profit:'£448',margin:'36.1%',orders:'47',fees:'£158',trend:[180,210,190,240,200,220,200]},
+  '30d':{rev:'£4,820',profit:'£1,650',margin:'34.2%',orders:'183',fees:'£612',trend:[3100,3450,5200,3800,4300,4820]},
+  '90d':{rev:'£13,570',profit:'£4,587',margin:'33.8%',orders:'512',fees:'£1,720',trend:[3100,3450,5200,3800,4300,4820]},
 };
-let currentPeriod = '30d';
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
-function doLogin() {
-  const pw = document.getElementById('pw-input').value;
-  const err = document.getElementById('login-error');
-  if (pw === 'demo123') {
+function toggleConn(s){
+  const el=document.getElementById('btn-'+s);
+  const on=el.classList.toggle('on');
+  el.textContent=on?'✔ '+(s==='ebay'?'eBay API':'Google Sheets'):'+Connect '+(s==='ebay'?'eBay':'Sheets');
+}
+function doLogin(){
+  const pw=document.getElementById('pw-input').value;
+  const err=document.getElementById('login-error');
+  if(pw==='demo123'){
     document.getElementById('login-screen').classList.add('hidden');
-    const dash = document.getElementById('dashboard');
-    dash.classList.add('visible');
-    setTimeout(initCharts, 300);
-    setTimeout(() => document.getElementById('health-bar').style.width = '82%', 800);
-  } else {
-    err.style.display = 'block';
-    document.getElementById('pw-input').style.borderColor = 'var(--red)';
-    setTimeout(() => { err.style.display = 'none'; document.getElementById('pw-input').style.borderColor = ''; }, 3000);
+    document.getElementById('dashboard').classList.add('visible');
+    setTimeout(initCharts,300);
+    setTimeout(()=>document.getElementById('health-bar').style.width='82%',800);
+  }else{
+    err.style.display='block';
+    document.getElementById('pw-input').style.borderColor='var(--red)';
+    setTimeout(()=>{err.style.display='none';document.getElementById('pw-input').style.borderColor='';},3000);
   }
 }
-document.getElementById('pw-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-
-function doLogout() {
+document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function doLogout(){
   document.getElementById('dashboard').classList.remove('visible');
   document.getElementById('login-screen').classList.remove('hidden');
-  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-input').value='';
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
-function showPage(id, el) {
-  document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
+function showPage(id,el){
+  document.querySelectorAll('.pc').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
   el.classList.add('active');
 }
 
-// ── PERIOD TABS ───────────────────────────────────────────────────────────────
-function setPeriod(p, el) {
-  currentPeriod = p;
-  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+// ── PERIOD ────────────────────────────────────────────────────────────────────
+function setPeriod(p,el){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  const d = PERIOD_DATA[p];
-  animateValue('m-revenue', d.rev);
-  animateValue('m-margin', d.margin);
-  animateValue('m-orders', d.orders);
-  animateValue('m-fees', d.fees);
-  updateRevenueChart(d.trend, p);
+  const d=PD[p];
+  aval('m-rev',d.rev); aval('m-profit',d.profit);
+  aval('m-margin',d.margin); aval('m-orders',d.orders); aval('m-fees',d.fees);
+  updateChart(d.trend,p);
+}
+function aval(id,v){
+  const el=document.getElementById(id);
+  el.style.opacity='0';el.style.transform='translateY(-5px)';
+  setTimeout(()=>{el.textContent=v;el.style.transition='all .25s ease';el.style.opacity='1';el.style.transform='translateY(0)';},140);
 }
 
-function animateValue(id, val) {
-  const el = document.getElementById(id);
-  el.style.opacity = '0'; el.style.transform = 'translateY(-6px)';
-  setTimeout(() => {
-    el.textContent = val;
-    el.style.transition = 'all 0.3s ease';
-    el.style.opacity = '1'; el.style.transform = 'translateY(0)';
-  }, 150);
+// ── SMART REFRESH ─────────────────────────────────────────────────────────────
+function setStep(id,state){
+  const el=document.getElementById(id);
+  const ic=el.querySelector('.step-ic');
+  if(state==='active'){el.className='step active';ic.textContent='◌';}
+  else if(state==='done'){el.className='step done';ic.textContent='✔';}
+  else{el.className='step';ic.textContent='○';}
 }
+function doRefresh(){
+  const btn=document.getElementById('refresh-btn');
+  const rp=document.getElementById('rp');
+  const aiStatus=document.getElementById('ai-status');
+  const aiThink=document.getElementById('ai-thinking');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinning">↻</span> Syncing…';
+  rp.classList.add('on');
+  ['st-ebay','st-sheets','st-ai','st-done'].forEach(s=>setStep(s,'idle'));
 
-// ── REFRESH ───────────────────────────────────────────────────────────────────
-function doRefresh() {
-  const btn = document.getElementById('refresh-btn');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinning">↻</span> Syncing…'; }
-  showToast('⟳', 'Fetching from eBay & Google Sheets…');
-  setTimeout(() => {
-    if (btn) { btn.disabled = false; btn.textContent = '↻ Refresh'; }
-    showToast('✓', 'Data refreshed · Claude analysis updated');
-  }, 2200);
+  setStep('st-ebay','active');
+  showToast('⟳','Step 1/3 · Connecting to eBay API…');
+
+  setTimeout(()=>{
+    setStep('st-ebay','done');setStep('st-sheets','active');
+    showToast('⟳','Step 2/3 · Syncing Google Sheets data…');
+  },950);
+
+  setTimeout(()=>{
+    setStep('st-sheets','done');setStep('st-ai','active');
+    showToast('◆','Step 3/3 · Running AI analysis…');
+    if(aiStatus)aiStatus.textContent='AI is analysing your business data…';
+    if(aiThink)aiThink.classList.add('on');
+  },1900);
+
+  setTimeout(()=>{
+    setStep('st-ai','done');setStep('st-done','done');
+    if(aiThink)aiThink.classList.remove('on');
+    if(aiStatus)aiStatus.textContent='✔ AI found 4 key insights from your data';
+    const now=new Date();
+    const t=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const ss=document.getElementById('sync-status');
+    if(ss)ss.innerHTML=`<span class="sync-dot"></span>Live · Last synced today at ${t}`;
+    btn.disabled=false;btn.textContent='↻ Refresh';
+    showToast('✓','All sources synced · Dashboard updated');
+    setTimeout(()=>rp.classList.remove('on'),2000);
+  },3100);
 }
-
-function showToast(icon, msg) {
-  const t = document.getElementById('toast');
-  document.getElementById('toast-icon').textContent = icon;
-  document.getElementById('toast-msg').textContent = msg;
+function showToast(icon,msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toast-icon').textContent=icon;
+  document.getElementById('toast-msg').textContent=msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>t.classList.remove('show'),3200);
 }
 
-// ── RENDER LISTS ─────────────────────────────────────────────────────────────
-function renderSellers() {
-  const el = document.getElementById('sellers-list');
-  el.innerHTML = SELLERS.map((s,i) => `
-    <div class="seller-row">
-      <span class="seller-rank ${i===0?'gold':''}">${i===0?'★':i+1}</span>
-      <div class="seller-info">
-        <div class="seller-name">${s.name}</div>
-        <div class="seller-units">${s.units} units sold</div>
-      </div>
-      <span class="seller-rev">£${s.rev}</span>
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderSellers(){
+  document.getElementById('sellers-list').innerHTML=SELLERS.map((s,i)=>`
+    <div class="sllrow">
+      <span class="slrank ${i===0?'g':''}">${i===0?'★':i+1}</span>
+      <div class="slinfo"><div class="slname">${s.name}</div><div class="slunits">${s.units} units sold</div></div>
+      <span class="slrev">£${s.rev}</span>
     </div>`).join('');
 }
-
-function renderInsights() {
-  const make = (containerId) => {
-    const el = document.getElementById(containerId);
-    if (!el) return;
-    el.innerHTML = INSIGHTS.map(i => `
-      <div class="insight-item">
-        <div class="insight-dot" style="background:${i.color}"></div>
+function renderInsights(){
+  ['insights-list','insights-full'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=INSIGHTS.map(i=>`
+      <div class="iitem">
+        <div class="idot" style="background:${i.color}"></div>
         <div>
-          <span class="insight-tag" style="background:${i.color}18;color:${i.color};border:1px solid ${i.color}30">${i.type}</span>
-          <div class="insight-text">${i.text}</div>
+          <span class="itag" style="background:${i.color}18;color:${i.color};border:1px solid ${i.color}30">${i.type}</span>
+          <div class="itext">${i.text}</div>
         </div>
       </div>`).join('');
-  };
-  make('insights-list');
-  make('insights-full');
+  });
 }
-
-function renderStock() {
-  document.getElementById('stock-list').innerHTML = STOCK.map(s => `
-    <div class="stock-row">
-      <div><div class="stock-name">${s.name}</div><div class="stock-sku">${s.sku}</div></div>
-      <span class="stock-badge badge-${s.status}">${s.qty} left</span>
+function renderStock(){
+  const map={r:'br',a:'ba',g:'bg2'};
+  document.getElementById('stock-list').innerHTML=STOCK.map(s=>`
+    <div class="srow">
+      <div><div class="sname">${s.name}</div><div class="ssku">${s.sku}</div></div>
+      <span class="sbadge ${map[s.s]}">${s.qty} left</span>
     </div>`).join('');
 }
-
-function renderOrders(data) {
-  const statusMap = {
-    shipped: ['#60a5fa', 'Shipped'],
-    processing: ['#f0b429', 'Processing'],
-    delivered: ['#34d399', 'Delivered'],
-  };
-  document.getElementById('orders-body').innerHTML = (data||ORDERS).map(o => {
-    const [col, label] = statusMap[o.status] || ['#888','Unknown'];
-    return `<tr>
-      <td style="color:var(--muted)">${o.id}</td>
-      <td>${o.item}</td>
-      <td style="color:var(--muted)">${o.customer}</td>
-      <td style="color:var(--muted)">${o.date}</td>
-      <td style="color:var(--accent);font-weight:500">${o.amount}</td>
-      <td><span class="status-badge" style="background:${col}18;color:${col};border:1px solid ${col}30">${label}</span></td>
-    </tr>`;
+function renderOrders(data){
+  const sm={shipped:['#60a5fa','Shipped'],processing:['#f0b429','Processing'],delivered:['#34d399','Delivered']};
+  document.getElementById('orders-body').innerHTML=(data||ORDERS).map(o=>{
+    const[c,l]=sm[o.st]||['#888','Unknown'];
+    return`<tr><td style="color:var(--muted)">${o.id}</td><td>${o.item}</td><td style="color:var(--muted)">${o.cust}</td><td style="color:var(--muted)">${o.date}</td><td style="color:var(--accent);font-weight:500">${o.amt}</td><td><span class="stbadge" style="background:${c}18;color:${c};border:1px solid ${c}30">${l}</span></td></tr>`;
   }).join('');
 }
-
-function filterOrders(q) {
-  const filtered = ORDERS.filter(o =>
-    o.item.toLowerCase().includes(q.toLowerCase()) ||
-    o.customer.toLowerCase().includes(q.toLowerCase()) ||
-    o.id.toLowerCase().includes(q.toLowerCase())
-  );
-  renderOrders(filtered);
+function filterOrders(q){
+  renderOrders(ORDERS.filter(o=>o.item.toLowerCase().includes(q.toLowerCase())||o.cust.toLowerCase().includes(q.toLowerCase())||o.id.toLowerCase().includes(q.toLowerCase())));
 }
-
-function renderInventory() {
-  document.getElementById('inventory-body').innerHTML = INVENTORY_DATA.map(i => {
-    const low = i.qty < 3;
-    const badge = low ? 'badge-red' : i.qty < 6 ? 'badge-amber' : 'badge-green';
-    const label = low ? 'Low stock' : i.qty < 6 ? 'Watch' : 'In stock';
-    return `<tr>
-      <td style="color:var(--muted);font-size:11px">${i.sku}</td>
-      <td>${i.name}</td>
-      <td style="text-align:center">${i.qty}</td>
-      <td style="color:var(--muted)">£${i.cost}</td>
-      <td style="color:var(--accent)">£${i.value}</td>
-      <td><span class="stock-badge ${badge}">${label}</span></td>
-    </tr>`;
+function renderInv(){
+  document.getElementById('inv-body').innerHTML=INV.map(i=>{
+    const low=i.qty<3,w=i.qty<6;
+    const b=low?'br':w?'ba':'bg2';const l=low?'Low stock':w?'Watch':'In stock';
+    return`<tr><td style="color:var(--muted);font-size:11px">${i.sku}</td><td>${i.name}</td><td style="text-align:center">${i.qty}</td><td style="color:var(--muted)">£${i.cost}</td><td style="color:var(--accent)">£${i.val}</td><td><span class="sbadge ${b}">${l}</span></td></tr>`;
   }).join('');
 }
 
 // ── CHARTS ────────────────────────────────────────────────────────────────────
-let revenueChart, donutChart, feesChart, costsChart;
-
-const MONO_LABELS_6 = ['Oct','Nov','Dec','Jan','Feb','Mar'];
-
-function chartDefaults() {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#17171c', borderColor: '#2e2e38', borderWidth: 1, titleColor: '#5a5a6e', titleFont: { family: 'DM Mono', size: 11 }, bodyColor: '#f0f0f5', bodyFont: { family: 'DM Mono', size: 12 }, padding: 10 } },
-    scales: {
-      x: { grid: { color: '#17171c' }, ticks: { color: '#5a5a6e', font: { family: 'DM Mono', size: 10 } }, border: { display: false } },
-      y: { grid: { color: '#1c1c22' }, ticks: { color: '#5a5a6e', font: { family: 'DM Mono', size: 10 }, callback: v => '£'+v.toLocaleString() }, border: { display: false } }
+let RC,DC,FC,CC;
+const L6=['Oct','Nov','Dec','Jan','Feb','Mar'];
+function cb(){
+  return{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#17171c',borderColor:'#2e2e38',borderWidth:1,titleColor:'#5a5a6e',titleFont:{family:'DM Mono',size:11},bodyColor:'#f0f0f5',bodyFont:{family:'DM Mono',size:12},padding:10}},
+    scales:{
+      x:{grid:{color:'#17171c'},ticks:{color:'#5a5a6e',font:{family:'DM Mono',size:10}},border:{display:false}},
+      y:{grid:{color:'#1c1c22'},ticks:{color:'#5a5a6e',font:{family:'DM Mono',size:10},callback:v=>'£'+v.toLocaleString()},border:{display:false}}
     }
   };
 }
-
-function initCharts() {
-  // Revenue + profit combo chart
-  const rCtx = document.getElementById('revenue-chart').getContext('2d');
-  revenueChart = new Chart(rCtx, {
-    type: 'bar',
-    data: {
-      labels: MONO_LABELS_6,
-      datasets: [
-        { type: 'bar', label: 'Revenue', data: [3100,3450,5200,3800,4300,4820], backgroundColor: 'rgba(240,180,41,0.2)', borderColor: 'rgba(240,180,41,0.5)', borderWidth: 1, borderRadius: 4 },
-        { type: 'line', label: 'Profit', data: [1020,1140,1820,1240,1440,1648], borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.08)', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#34d399', fill: true, tension: 0.4 }
+function dOpts(){
+  return{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:'#5a5a6e',font:{family:'DM Mono',size:10},padding:11,boxWidth:8}},tooltip:{backgroundColor:'#17171c',borderColor:'#2e2e38',borderWidth:1,titleColor:'#5a5a6e',bodyColor:'#f0f0f5',callbacks:{label:ctx=>` £${ctx.raw.toLocaleString()}`}}}};
+}
+function initCharts(){
+  RC=new Chart(document.getElementById('rev-chart').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:L6,
+      datasets:[
+        {type:'bar',label:'Revenue',data:[3100,3450,5200,3800,4300,4820],backgroundColor:'rgba(240,180,41,.18)',borderColor:'rgba(240,180,41,.5)',borderWidth:1,borderRadius:4},
+        {type:'line',label:'Net Profit',data:[1020,1140,1820,1240,1440,1650],borderColor:'#c084fc',backgroundColor:'rgba(192,132,252,.05)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#c084fc',fill:true,tension:.4},
+        {type:'line',label:'Fees',data:[380,420,680,490,500,612],borderColor:'#f87171',backgroundColor:'transparent',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#f87171',tension:.4,borderDash:[4,3]}
       ]
     },
-    options: { ...chartDefaults(), interaction: { mode: 'index', intersect: false } }
+    options:{...cb(),interaction:{mode:'index',intersect:false}}
   });
-
-  // Category donut
-  const dCtx = document.getElementById('donut-chart').getContext('2d');
-  donutChart = new Chart(dCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Electronics','Accessories','Office','Cameras'],
-      datasets: [{ data: [1850,1240,820,910], backgroundColor: ['rgba(240,180,41,0.8)','rgba(96,165,250,0.8)','rgba(52,211,153,0.8)','rgba(192,132,252,0.8)'], borderColor: '#111114', borderWidth: 2, hoverOffset: 6 }]
-    },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '68%',
-      plugins: { legend: { position: 'bottom', labels: { color: '#5a5a6e', font: { family: 'DM Mono', size: 10 }, padding: 12, boxWidth: 8 } },
-        tooltip: { backgroundColor: '#17171c', borderColor: '#2e2e38', borderWidth: 1, titleColor: '#5a5a6e', bodyColor: '#f0f0f5', callbacks: { label: ctx => ` £${ctx.raw.toLocaleString()}` } }
-      }
-    }
-  });
-
-  // Fees chart
-  const fCtx = document.getElementById('fees-chart').getContext('2d');
-  feesChart = new Chart(fCtx, {
-    type: 'line',
-    data: {
-      labels: MONO_LABELS_6,
-      datasets: [{ label: 'Fees', data: [380,420,680,490,500,612], borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.08)', borderWidth: 2, fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#f87171' }]
-    },
-    options: chartDefaults()
-  });
-
-  // Cost breakdown donut
-  const cCtx = document.getElementById('costs-chart').getContext('2d');
-  costsChart = new Chart(cCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['COGS','eBay Fees','Shipping','Other'],
-      datasets: [{ data: [2100,612,182,120], backgroundColor: ['rgba(96,165,250,0.8)','rgba(248,113,113,0.8)','rgba(192,132,252,0.8)','rgba(90,90,110,0.5)'], borderColor: '#111114', borderWidth: 2 }]
-    },
-    options: { responsive: true, maintainAspectRatio: false, cutout: '68%',
-      plugins: { legend: { position: 'bottom', labels: { color: '#5a5a6e', font: { family: 'DM Mono', size: 10 }, padding: 12, boxWidth: 8 } },
-        tooltip: { backgroundColor: '#17171c', borderColor: '#2e2e38', borderWidth: 1, titleColor: '#5a5a6e', bodyColor: '#f0f0f5', callbacks: { label: ctx => ` £${ctx.raw.toLocaleString()}` } }
-      }
-    }
-  });
-
-  renderSellers(); renderInsights(); renderStock(); renderOrders(); renderInventory();
+  DC=new Chart(document.getElementById('donut-chart').getContext('2d'),{type:'doughnut',data:{labels:['Electronics','Accessories','Office','Cameras'],datasets:[{data:[1850,1240,820,910],backgroundColor:['rgba(240,180,41,.8)','rgba(96,165,250,.8)','rgba(52,211,153,.8)','rgba(192,132,252,.8)'],borderColor:'#111114',borderWidth:2,hoverOffset:6}]},options:dOpts()});
+  FC=new Chart(document.getElementById('fees-chart').getContext('2d'),{type:'line',data:{labels:L6,datasets:[{label:'Fees',data:[380,420,680,490,500,612],borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.08)',borderWidth:2,fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#f87171'}]},options:cb()});
+  CC=new Chart(document.getElementById('costs-chart').getContext('2d'),{type:'doughnut',data:{labels:['COGS','eBay Fees','Shipping','Other'],datasets:[{data:[2100,612,182,120],backgroundColor:['rgba(96,165,250,.8)','rgba(248,113,113,.8)','rgba(192,132,252,.8)','rgba(90,90,110,.5)'],borderColor:'#111114',borderWidth:2}]},options:dOpts()});
+  renderSellers();renderInsights();renderStock();renderOrders();renderInv();
 }
-
-function updateRevenueChart(data, period) {
-  if (!revenueChart) return;
-  const labels = period === '7d'
-    ? ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
-    : MONO_LABELS_6;
-  revenueChart.data.labels = labels;
-  revenueChart.data.datasets[0].data = data;
-  revenueChart.data.datasets[1].data = data.map(v => Math.round(v * 0.342));
-  revenueChart.update('active');
+function updateChart(data,period){
+  if(!RC)return;
+  RC.data.labels=period==='7d'?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:L6;
+  RC.data.datasets[0].data=data;
+  RC.data.datasets[1].data=data.map(v=>Math.round(v*.342));
+  RC.data.datasets[2].data=data.map(v=>Math.round(v*.127));
+  RC.update('active');
 }
 </script>
 </body>
